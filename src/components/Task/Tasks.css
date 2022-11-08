@@ -1,0 +1,50 @@
+.main {
+          background-color: #20212c;
+          color: white;
+          width: max-content;
+          width: 100%;
+          display : grid; 
+          grid-template-columns: 1fr 1fr 1fr;
+
+
+}
+
+.main-child{
+          padding: 40px 0;
+          margin: 0 10px 20px 30px;
+}
+
+.lists {
+          box-shadow: rgba(104, 108, 116, 0.1) 0px 4px 6px;
+          background-color: rgb(43, 44, 55);
+          margin-bottom: 20px;
+          border-radius: 6px;
+          padding: 23px 16px 15px 16px;
+          list-style: none;
+          width:30vw;
+}
+
+.name {
+          text-transform: uppercase;
+          letter-spacing: 6px;
+          font-weight: 300;
+          padding-bottom: 30px;
+}
+
+/* .todos {
+          width: 100vw;
+          padding-top: 60px;
+          margin-left: 60px;
+} */
+
+.status {
+          background-color: rgb(73, 196, 229);
+          border-radius: 30%;
+          padding: 1px 5px;
+          width: 15px;
+          height: 15px;
+}
+
+.todo-lists li{
+          cursor:grabbing;
+}
