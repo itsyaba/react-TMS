@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
-
+import { MantineProvider } from '@mantine/core';
 import { Provider } from 'react-redux'
 import { store } from './app/store'
 
@@ -14,8 +14,10 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-
-      <App />
+      <MantineProvider withCSSVariables withGlobalStyles withNormalizeCSS theme={{ colorScheme:'dark'}}>
+        
+        <App />
+      </MantineProvider>
     </ Provider>
   </React.StrictMode>
 );

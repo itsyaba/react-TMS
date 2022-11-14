@@ -1,28 +1,34 @@
-import React, { useState, useRef , useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
-import "./AddNewTask.css";
 import { TodoAdded } from "../../Task/TasksSlice";
 import { DoneAdded } from "../../Task/DoneSlice";
 import { DoingAdded } from "../../Task/DoingSlice";
+
+import {
+  Modal,
+  Button,
+  Group,
+  MantineProvider,
+  TextInput,
+  Textarea,
+  Select,
+} from "@mantine/core";
 
 function AddNewTask({ modal, setModal }) {
   const [title, setTitle] = useState("");
   const [discription, setDiscription] = useState("");
   const [status, setStatus] = useState("todo");
-
+  const [opened, setOpened] = useState(false);
   const dispatch = useDispatch();
   const inputRef = useRef();
 
-useEffect(() => {
-    inputRef.current?.focus();
-}, [title])
-
+  console.log(title, discription, status);
   const SaveHandeler = (event) => {
     event.preventDefault();
     if (title && discription) {
-      if (status === "todo") {
+      if (status.toLowerCase() === "todo") {
         dispatch(
           TodoAdded({
             id: uuidv4(),
@@ -30,7 +36,7 @@ useEffect(() => {
             description: discription,
           })
         );
-      } else if (status === "done") {
+      } else if (status.toLowerCase() === "done") {
         dispatch(
           DoneAdded({
             id: uuidv4(),
@@ -38,7 +44,8 @@ useEffect(() => {
             description: discription,
           })
         );
-      } else if (status === "doing") {
+      } else if (status.toLowerCase() === "doing") {
+        console.log("states");
         dispatch(
           DoingAdded({
             id: uuidv4(),
@@ -51,82 +58,83 @@ useEffect(() => {
 
     setTitle("");
     setDiscription("");
-    setModal(!modal);
-  };
-
-  const keyDownHandeler = (event) => {
-    if (event.key === "Escape") {
-      setModal(false);
-    }
+    setStatus("");
+    setModal(!modal)
   };
 
   return (
-    <div className="container" onKeyDown={keyDownHandeler}>
-      <div
-        className="background"
-        onClick={() => {
-          setModal(false);
-        }}
-        onKeyDown={keyDownHandeler}
-      ></div>
-      <div className="model">
-        <h2 className="add">Add Task</h2>
-        <div className="form-container">
-          <form>
-            <label htmlFor="title" className="title-label">
-              Title
-            </label>
-            <input
-              type="text"
-              placeholder="e.g Take coffee break"
-              className="title-input"
-              name="name"
-              ref={inputRef}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+    <MantineProvider
+      theme={{
+        colorScheme: "dark",
+      }}
+    >
+      <Modal
+        closeOnEscape
+        opened={modal}
+        onClose={() => setModal(false)}
+        title="Add A New Task"
+        size="xl"
+        centered
+        // mt= {200}
+        transition={"skew-down"}
+        transitionDuration={900}
+        transitionTimingFunction="ease"
+      >
+        <form>
+          <label htmlFor="title" className="title-label">
+            Title
+          </label>
+          <TextInput
+            data-autofocus
+            type="text"
+            mt={"sm"}
+            mb="xl"
+            placeholder="e.g Take coffee break"
+            value={title}
+            name="name"
+            onChange={(e) => setTitle(e.target.value)}
+          />
+
+          <label htmlFor="descripion" className="descripion-label">
+            Description
+          </label>
+          <Textarea
+            name="descripion"
+            placeholder="e.g It's always good to take a break. This 15 minute break will recharge the batteries a little"
+            value={discription}
+            onChange={(e) => setDiscription(e.target.value)}
+            mb="xl"
+            mt={"sm"}
+          ></Textarea>
+          <div className="options">
+            <Select
+              defaultValue={'Todo'}
+              value={status}
+              onChange={setStatus}
+              allowDeselect
+              transition={"skew-up"}
+              transitionDuration={400}
+              transitionTimingFunction="ease"
+              label="Add To"
+              placeholder="Pick one"
+              data={[
+                { value: "todo", label: "todo" },
+                { value: "doing", label: "doing" },
+                { value: "done", label: "done" },
+              ]}
             />
-            <label htmlFor="descripion" className="descripion-label">
-              Description
-            </label>
-            <textarea
-              name="descripion"
-              className="descripion-input"
-              placeholder="e.g It's always good to take a break. This 15 minute break will recharge the batteries a little"
-              value={discription}
-              onChange={(e) => setDiscription(e.target.value)}
-            ></textarea>
-            <div className="options">
-              <select name="name" className="select">
-                <option
-                  value="todo"
-                  className="opt"
-                  onClick={() => setStatus("todos")}
-                >
-                  Todo
-                </option>
-                <option
-                  value="doing"
-                  className="opt"
-                  onClick={() => setStatus("doing")}
-                >
-                  Doing
-                </option>
-                <option
-                  value="done"
-                  className="opt"
-                  onClick={() => setStatus("done")}
-                >
-                  Done
-                </option>
-              </select>
-            </div>
-            <button className="submitBtn" onClick={SaveHandeler}>
-              Save Changes
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
+          </div>
+          <Button
+            onClick={SaveHandeler}
+            fullWidth
+            radius={"xl"}
+            mt="xl"
+          >
+            Save Changes
+          </Button>
+        </form>
+      </Modal>
+    </MantineProvider>
   );
 }
 

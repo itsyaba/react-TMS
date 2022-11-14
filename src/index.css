@@ -6,3 +6,7 @@
   box-sizing: border-box;
   font-family: 'Plus Jakarta Sans' , cursive;
 }
+
+.App {
+  background-color: #20212c;
+}
