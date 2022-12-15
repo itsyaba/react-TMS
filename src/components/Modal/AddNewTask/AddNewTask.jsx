@@ -1,66 +1,97 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-
-import { TodoAdded } from "../../Task/TasksSlice";
-import { DoneAdded } from "../../Task/DoneSlice";
-import { DoingAdded } from "../../Task/DoingSlice";
-
+import Axios from "axios";
+import { TodoAdded } from "../../TaskLists/TasksSlice";
+import { ActivityAdded } from "../../../Pages/ActivityLog/ActivitySlice";
 import {
   Modal,
   Button,
-  Group,
   MantineProvider,
   TextInput,
   Textarea,
-  Select,
+  Loader,
+  Center,
+  MultiSelect,
+  useMantineTheme,
 } from "@mantine/core";
 
 function AddNewTask({ modal, setModal }) {
   const [title, setTitle] = useState("");
-  const [discription, setDiscription] = useState("");
+  const [description, setDescription] = useState("");
+  const {type} = useParams()
   const [status, setStatus] = useState("todo");
-  const [opened, setOpened] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [devname, setDevname] = useState([]);
+  const [assignedTo, setAssignedto] = useState([]);
+  const [data, SetData] = useState({
+    TaskId: "",
+    taskName: "",
+    taskDetail: "",
+    taskStatus: "",
+    taskAssignedTo: [],
+  });
   const dispatch = useDispatch();
-  const inputRef = useRef();
 
-  console.log(title, discription, status);
   const SaveHandeler = (event) => {
     event.preventDefault();
-    if (title && discription) {
-      if (status.toLowerCase() === "todo") {
-        dispatch(
-          TodoAdded({
-            id: uuidv4(),
-            task: title,
-            description: discription,
-          })
-        );
-      } else if (status.toLowerCase() === "done") {
-        dispatch(
-          DoneAdded({
-            id: uuidv4(),
-            task: title,
-            description: discription,
-          })
-        );
-      } else if (status.toLowerCase() === "doing") {
-        console.log("states");
-        dispatch(
-          DoingAdded({
-            id: uuidv4(),
-            task: title,
-            description: discription,
-          })
-        );
-      }
+    if (title && description) {
+      SetData({
+        taskId: uuidv4(),
+        taskName: title,
+        taskDetail: description,
+        taskStatus: status,
+        assignedTo: assignedTo,
+      });
+
+      dispatch(
+        TodoAdded({
+          id: uuidv4(),
+          task: title,
+          description: description,
+          status: type,
+          assignedTo: assignedTo,
+        })
+      );
+
+      dispatch(
+        ActivityAdded({
+          operationName: "Added a task",
+          completed: "Succeeded",
+          time: `${new Date().toLocaleDateString()}`,
+          eventIntiatedBy: `${type}`,
+        }) 
+      );
+    } else {
+      alert("try again");
     }
 
     setTitle("");
-    setDiscription("");
+    setDescription("");
     setStatus("");
-    setModal(!modal)
+    setAssignedto([]);
+    setModal(!modal);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const resp = await Axios.get(`https://dummyjson.com/users`);
+        const result = resp.data.users;
+        for (const props of result) {
+          setDevname((devname) => [...devname, props.firstName]);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error(error.message);
+        console.log("error");
+      }
+    };
+    fetchData();
+  }, []);
+
+  const theme = useMantineTheme();
 
   return (
     <MantineProvider
@@ -75,10 +106,16 @@ function AddNewTask({ modal, setModal }) {
         title="Add A New Task"
         size="xl"
         centered
-        // mt= {200}
         transition={"skew-down"}
         transitionDuration={900}
         transitionTimingFunction="ease"
+        overlayColor={
+          theme.colorScheme === "dark"
+            ? theme.colors.gray[9]
+            : theme.colors.gray[2]
+        }
+        overlayOpacity={0.15}
+        overlayBlur={9}
       >
         <form>
           <label htmlFor="title" className="title-label">
@@ -101,34 +138,39 @@ function AddNewTask({ modal, setModal }) {
           <Textarea
             name="descripion"
             placeholder="e.g It's always good to take a break. This 15 minute break will recharge the batteries a little"
-            value={discription}
-            onChange={(e) => setDiscription(e.target.value)}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             mb="xl"
             mt={"sm"}
-          ></Textarea>
-          <div className="options">
-            <Select
-              defaultValue={'Todo'}
-              value={status}
-              onChange={setStatus}
-              allowDeselect
-              transition={"skew-up"}
-              transitionDuration={400}
-              transitionTimingFunction="ease"
-              label="Add To"
-              placeholder="Pick one"
-              data={[
-                { value: "todo", label: "todo" },
-                { value: "doing", label: "doing" },
-                { value: "done", label: "done" },
-              ]}
-            />
-          </div>
+          />
+          {isLoading ? (
+            <Center>
+              <Loader variant="dots" />
+            </Center>
+          ) : (
+            <div className="options">
+              <MultiSelect
+                searchable
+                nothingFound="Nothing found"
+                label="Assign Task To"
+                placeholder="Choose A Developer"
+                transition="slide-down"
+                transitionDuration={360}
+                transitionTimingFunction="ease"
+                limit={10}
+                data={devname}
+                value={assignedTo}
+                onChange={setAssignedto}
+              />
+            </div>
+          )}
+
           <Button
             onClick={SaveHandeler}
             fullWidth
             radius={"xl"}
             mt="xl"
+            className="bg-indigo-500"
           >
             Save Changes
           </Button>

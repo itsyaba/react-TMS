@@ -6,18 +6,21 @@ import './index.css';
 import { MantineProvider } from '@mantine/core';
 import { Provider } from 'react-redux'
 import { store } from './app/store'
-
+import {PersistGate} from "redux-persist/integration/react"
+import {persistStore} from "redux-persist"
 
 const container = document.getElementById('root');
 const root = createRoot(container);
+let persistor = persistStore(store)
 
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <MantineProvider withCSSVariables withGlobalStyles withNormalizeCSS theme={{ colorScheme:'dark'}}>
-        
+      <PersistGate persistor={persistor}>
+      <MantineProvider withCSSVariables withGlobalStyles withNormalizeCSS theme={{ colorScheme: 'dark', backgroundColor: '#20212c'}}>
         <App />
       </MantineProvider>
+      </PersistGate>
     </ Provider>
   </React.StrictMode>
 );

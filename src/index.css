@@ -1,12 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 *{
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans' , cursive;
+  font-family: 'Plus Jakarta Sans' , sans-serif;
 }
 
 .App {
   background-color: #20212c;
+  background-color: #00ffff84;
 }
